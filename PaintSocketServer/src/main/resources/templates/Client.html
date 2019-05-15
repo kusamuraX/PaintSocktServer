@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Hello WebSocket</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.3.0/sockjs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script type="text/javascript">
+    	var stompClient = null;
+        var canvas = null;
+        var ctx = null;
+        
+    	function connect(){
+    		canvas = document.getElementById('canvas');
+    		ctx = canvas.getContext('2d')
+    		console.log("connect websocket")
+    		var socket = new SockJS('/paint');
+    		stompClient = Stomp.over(socket);
+            stompClient.connect({}, function (frame) {
+                console.log('Connected: ' + frame);
+                stompClient.subscribe('/broadcast/writer', function (greeting) {
+                	getData(greeting);
+                });
+            });
+    	}
+    	
+    	function disconnect() {
+            if (stompClient != null) {
+                stompClient.disconnect();
+            }
+            setConnected(false);
+            console.log("Disconnected");
+        }
+    	
+    	function getData(getdata){
+    		var jsonData = JSON.parse(getdata.body)
+    		var bfx = -1;
+    		var bfy = -1;
+    		ctx.beginPath();
+    		for(var i = 0; i < jsonData.pointArray.length; i++){
+    			var pointData = jsonData.pointArray[i];
+    			if(i == 0){
+    				ctx.moveTo(parseInt(pointData.point_x), parseInt(pointData.point_y));
+    			} else {
+    				ctx.lineTo(parseInt(pointData.point_x), parseInt(pointData.point_y));
+    				ctx.stroke();
+    				ctx.moveTo(parseInt(pointData.point_x), parseInt(pointData.point_y));
+    			}
+    		}
+    		ctx.closePath();
+    	}
+    </script>
+</head>
+<body onload="connect()" onunload="disconnect()">
+	<canvas width="400" 
+            height="400"
+            id="canvas">
+	</canvas>
+</body>
+</html>
