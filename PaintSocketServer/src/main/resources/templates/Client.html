@@ -37,6 +37,8 @@
     		var bfx = -1;
     		var bfy = -1;
     		ctx.beginPath();
+    		ctx.strokeStyle = jsonData.style.color;
+    		ctx.lineWidth = jsonData.style.width;
     		for(var i = 0; i < jsonData.pointArray.length; i++){
     			var pointData = jsonData.pointArray[i];
     			if(i == 0){
@@ -50,6 +52,11 @@
     		ctx.closePath();
     	}
     </script>
+    <style type="text/css">
+    canvas {
+	  border: 1px solid #000;
+	}
+    </style>
 </head>
 <body onload="connect()" onunload="disconnect()">
 	<canvas width="400" 
